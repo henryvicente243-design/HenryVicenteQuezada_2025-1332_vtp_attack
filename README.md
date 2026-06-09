@@ -6,7 +6,7 @@
 
 ## 🎬 Video Demostrativo
 
-(https://youtu.be/so5_2xU2V84?list=PLhmycmsx2nBs_UFf6YQ6_QhJLSctMGgFH)
+https://youtu.be/so5_2xU2V84?list=PLhmycmsx2nBs_UFf6YQ6_QhJLSctMGgFH
 
 ---
 
