@@ -137,7 +137,7 @@ SW1# show vlan brief
 
 ### Topología
 
-<img width="915" height="730" alt="image" src="https://github.com/user-attachments/assets/587184b0-57f9-42f8-9ea7-580e2d8aa900" />
+<img width="897" height="710" alt="image" src="https://github.com/user-attachments/assets/ba2d60f0-290c-418c-8846-297782eca1e4" />
 
 ### Tabla de Direccionamiento
 
