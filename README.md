@@ -290,7 +290,7 @@ SW1# show vlan brief
 
 Antes del ataque
 
-<img width="1180" height="912" alt="image" src="https://github.com/user-attachments/assets/a8241175-5f8d-4f99-86aa-7fbf0d7f8e33" />
+<img width="816" height="580" alt="image" src="https://github.com/user-attachments/assets/16c15aa0-e6ff-4a59-a1b7-49a043b27b44" />
 
 📷 SW1# show vlan brief — Solo VLANs 10, 20 y 99
 
