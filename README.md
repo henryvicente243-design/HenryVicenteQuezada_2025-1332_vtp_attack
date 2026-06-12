@@ -310,7 +310,7 @@ Antes del ataque
 
 <img width="878" height="517" alt="image" src="https://github.com/user-attachments/assets/b6b2fcf0-fe73-47ff-85de-6abc932fa0e0" />
 
-Impacto del ataque
+## Impacto del ataque
 
 <img width="705" height="473" alt="image" src="https://github.com/user-attachments/assets/51e8c148-f3c8-404e-916d-70dd28e46a73" />
 
