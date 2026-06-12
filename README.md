@@ -286,32 +286,53 @@ SW1# show vlan brief
 | e0/3   | dynamic desirable | 10       | **Kali Linux** |
 
 ---
-
 ## 5. Capturas de Pantalla
 
-### Antes del ataque
+Antes del ataque
 
-<img width="736" height="623" alt="image" src="https://github.com/user-attachments/assets/13369e45-d6bc-4204-a5c9-64066beac19b" />
+<img width="1180" height="912" alt="image" src="https://github.com/user-attachments/assets/a8241175-5f8d-4f99-86aa-7fbf0d7f8e33" />
 
 📷 SW1# show vlan brief — Solo VLANs 10, 20 y 99
 
-### Script en ejecución
+## Durante la ejecución
 
+<img width="838" height="598" alt="image" src="https://github.com/user-attachments/assets/86db6cc0-64a9-4c11-ab60-547840f7d4bf" />
 
+📷 Kali ejecutando script — Selecciona opción 1, VLAN 50 "ATACANTE"
+ 
+## Impacto del ataque
 
-📷 Kali ejecutando vtp_attack.py — Opción agregar VLAN 50
+<img width="703" height="449" alt="image" src="https://github.com/user-attachments/assets/3b8a9bda-a7a3-4208-a082-828450901ecf" />
 
-### Durante el ataque
+📷 SW1# show vlan brief — VLAN 50 ATACANTE aparece sin ser creada manualmente ✅
 
-<img width="848" height="656" alt="image" src="https://github.com/user-attachments/assets/2dd77139-c271-4b8e-b2c3-dd697a10b368" />
+## Ataque 2: BORRAR VLAN 20
 
-📷 SW1# show vlan brief — VLAN 50 ATACANTE agregada sin autorización
+<img width="878" height="517" alt="image" src="https://github.com/user-attachments/assets/b6b2fcf0-fe73-47ff-85de-6abc932fa0e0" />
 
-### Contramedida aplicada
+Impacto del ataque
 
-<img width="935" height="719" alt="image" src="https://github.com/user-attachments/assets/0b8b11d9-1263-409e-97fc-401bd01aceb6" />
+<img width="705" height="473" alt="image" src="https://github.com/user-attachments/assets/51e8c148-f3c8-404e-916d-70dd28e46a73" />
 
-📷 SW1# show vtp status — Mode: Transparent, ataque bloqueado
+📷 SW1# show vlan brief — VLAN 20 Gerencia desaparece del dominio ✅
+
+## Contramedida Aplicada: VTP Transparent
+
+<img width="705" height="463" alt="image" src="https://github.com/user-attachments/assets/b0d10be3-02c5-4e46-adc5-7ad7f79ec828" />
+
+📷 SW1 configuración
+
+## Ataque nuevamente bloqueado
+
+<img width="671" height="474" alt="image" src="https://github.com/user-attachments/assets/ded19d5f-777d-43fb-9567-20fa43609b80" />
+
+📷 Kali intenta agregar VLAN 77
+
+<img width="705" height="540" alt="image" src="https://github.com/user-attachments/assets/002cbf37-6d92-4242-9ff1-9dde01d50f2f" />
+
+📷 SW1# show vlan brief — VLAN 77 NO aparece (ataque bloqueado) ✅
+
+(VLAN 77 BLOQUEADA NO aparece — VTP Transparent rechaza el anuncio)
 
 ---
 
